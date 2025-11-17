@@ -1,0 +1,159 @@
+﻿@page "/editar-factura/{FacturaId:int}"
+@rendermode InteractiveServer
+@using blazor.Components.Data
+@using blazor.Components.Servicios
+@inject blazor.Components.Servicios.ServicioControlador ServicioControlador
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    <div class="card p-4">
+
+        <h3 class="ts-title">
+            <span class="ts-pink">📝 Editar Factura #@FacturaId ✨</span>
+        </h3>
+
+        <hr />
+
+        @if (FacturaAEditar == null)
+        {
+            <div class="alert alert-info">
+                Cargando factura o no se encontró...
+            </div>
+        }
+        else
+        {
+            <EditForm Model="@FacturaAEditar" OnValidSubmit="GuardarCambios">
+                <DataAnnotationsValidator />
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nombreCliente" class="form-label">Nombre del Cliente</label>
+                        <InputText id="nombreCliente" @bind-Value="FacturaAEditar.NombreCliente" class="form-control" />
+                        <ValidationMessage For="@(() => FacturaAEditar.NombreCliente)" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaFactura" class="form-label">Fecha de la Factura</label>
+                        <InputDate id="fechaFactura" @bind-Value="FacturaAEditar.FechaFactura" class="form-control" />
+                        <ValidationMessage For="@(() => FacturaAEditar.FechaFactura)" />
+                    </div>
+                </div>
+
+                <h4 class="mt-4">Artículos</h4>
+                <hr />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Precio Unitario</th>
+                                <th class="text-end">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var articulo in FacturaAEditar.Articulos)
+                            {
+                                <tr>
+                                    <td>
+                                        <InputText @bind-Value="articulo.Descripcion" class="form-control" />
+                                        <ValidationMessage For="@(() => articulo.Descripcion)" />
+                                    </td>
+                                    <td>
+                                        <InputNumber @bind-Value="articulo.Cantidad"
+                                                     class="form-control text-end"
+                                                     @oninput="@((ChangeEventArgs __e) => StateHasChanged())" />
+                                        <ValidationMessage For="@(() => articulo.Cantidad)" />
+                                    </td>
+                                    <td>
+                                        <InputNumber @bind-Value="articulo.Precio"
+                                                     step="0.01"
+                                                     class="form-control text-end"
+                                                     @oninput="@((ChangeEventArgs __e) => StateHasChanged())" />
+                                        <ValidationMessage For="@(() => articulo.Precio)" />
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>$@articulo.Subtotal.ToString("N2")</strong>
+                                    </td>
+                                    <td class="align-middle">
+                                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoverArticulo(articulo)">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5">
+                                    <button type="button" class="ts-button" @onclick="AgregarArticulo">
+                                        ➕ Agregar Artículo
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-end" colspan="3">TOTAL FACTURA:</th>
+                                <th class="text-end" colspan="2">$@FacturaAEditar.Total.ToString("N2")</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-secondary" @onclick="Volver">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="ts-button">
+                        💾 Guardar Cambios
+                    </button>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int FacturaId { get; set; }
+
+    private blazor.Components.Data.Factura? FacturaAEditar { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        FacturaAEditar = await ServicioControlador.ObtenerFacturaPorIdAsync(FacturaId);
+
+        if (FacturaAEditar == null)
+        {
+            Navigation.NavigateTo("/Vista");
+        }
+    }
+
+    private void AgregarArticulo()
+    {
+        FacturaAEditar?.Articulos.Add(new blazor.Components.Data.Factura.ArticuloFactura() { Cantidad = 1, Precio = 0.01m, Descripcion = "Nuevo artículo" });
+        StateHasChanged();
+    }
+
+    private void RemoverArticulo(blazor.Components.Data.Factura.ArticuloFactura articulo)
+    {
+        FacturaAEditar?.Articulos.Remove(articulo);
+        StateHasChanged();
+    }
+
+    private async Task GuardarCambios()
+    {
+        if (FacturaAEditar != null)
+        {
+            await ServicioControlador.ActualizarFacturaAsync(FacturaAEditar);
+            Navigation.NavigateTo("/Vista");
+        }
+    }
+
+    private void Volver()
+    {
+        Navigation.NavigateTo("/Vista");
+    }
+}

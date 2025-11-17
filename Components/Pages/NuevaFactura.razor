@@ -1,0 +1,152 @@
+﻿@page "/nueva-factura"
+@rendermode InteractiveServer
+@using blazor.Components.Data
+@using blazor.Components.Servicios
+@using FacturaModel = blazor.Components.Data.Factura
+@inject blazor.Components.Servicios.ServicioControlador ServicioControlador
+@inject NavigationManager Navigation
+<div class="container mt-4">
+    <div class="card p-4">
+        <h3 class="ts-title">
+            <span class="ts-pink">📝 Crear Nueva Factura </span>
+        </h3>
+
+        <hr />
+
+        <EditForm EditContext="@EditContext" OnValidSubmit="GuardarFactura">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nombreCliente" class="form-label">Nombre del Cliente</label>
+                    <InputText id="nombreCliente" @bind-Value="FacturaNueva.NombreCliente" class="form-control" />
+                    <ValidationMessage For="@(() => FacturaNueva.NombreCliente)" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="fechaFactura" class="form-label">Fecha de la Factura</label>
+                    <InputDate id="fechaFactura" @bind-Value="FacturaNueva.FechaFactura" class="form-control" />
+                    <ValidationMessage For="@(() => FacturaNueva.FechaFactura)" />
+                </div>
+            </div>
+
+            <h4 class="mt-4">Artículos</h4>
+            <hr />
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Precio Unitario</th>
+                            <th class="text-end">Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var articulo in FacturaNueva.Articulos)
+                        {
+                            <tr>
+                                <td>
+                                    <InputText @bind-Value="articulo.Descripcion"
+                                               @oninput="@(() => EditContext.Validate())"
+                                               class="form-control" />
+                                    <ValidationMessage For="@(() => articulo.Descripcion)" />
+                                </td>
+                                <td>
+                                    <InputNumber @bind-Value="articulo.Cantidad"
+                                                 class="form-control text-end" />
+                                    <ValidationMessage For="@(() => articulo.Cantidad)" />
+                                </td>
+                                <td>
+                                    <InputNumber @bind-Value="articulo.Precio"
+                                                 step="0.01"
+                                                 class="form-control text-end" />
+                                    <ValidationMessage For="@(() => articulo.Precio)" />
+                                </td>
+                                <td class="text-end">
+                                    $@articulo.Subtotal.ToString("N2")
+                                </td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger"
+                                            @onclick="() => RemoverArticulo(articulo)">
+                                        🗑️
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5">
+                                <button type="button" class="ts-button" @onclick="AgregarArticulo">
+                                    ➕ Agregar Artículo
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-end" colspan="3">Total Estimado:</th>
+                            <th class="text-end" colspan="2">$@FacturaNueva.Total.ToString("N2")</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-secondary" @onclick="Volver">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="ts-button">
+                    💾 Guardar Factura
+                </button>
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private EditContext EditContext;
+
+    public FacturaModel FacturaNueva { get; set; } = new FacturaModel
+    {
+        FechaFactura = DateTime.Now,
+        Articulos = new List<FacturaModel.ArticuloFactura>
+        {
+            new FacturaModel.ArticuloFactura()
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        EditContext = new EditContext(FacturaNueva);
+    }
+
+    private void AgregarArticulo()
+    {
+        FacturaNueva.Articulos.Add(new FacturaModel.ArticuloFactura());
+        StateHasChanged();
+        EditContext.Validate();
+    }
+
+    private void RemoverArticulo(FacturaModel.ArticuloFactura articulo)
+    {
+        FacturaNueva.Articulos.Remove(articulo);
+        StateHasChanged();
+        EditContext.Validate();
+    }
+
+    private async Task GuardarFactura()
+    {
+        await ServicioControlador.GuardarNuevaFacturaAsync(FacturaNueva);
+        Navigation.NavigateTo("/Vista");
+    }
+
+    private void Volver()
+    {
+        Navigation.NavigateTo("/Vista");
+    }
+}

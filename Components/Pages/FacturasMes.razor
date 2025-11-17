@@ -1,0 +1,138 @@
+﻿@page "/facturas-mes/{Anio:int}/{Mes:int}"
+@rendermode InteractiveServer
+@using blazor.Components.Data
+@using blazor.Components.Servicios
+@using FacturaModel = blazor.Components.Data.Factura
+@inject ServicioControlador ServicioControlador
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    <div class="card p-4">
+
+        <h3>Facturas de @NombreMes(Mes) @Anio</h3>
+        <hr />
+
+        <button class="btn btn-secondary mb-3" @onclick="Regresar">
+            Regresar
+        </button>
+
+        @if (gruposPorDia == null)
+        {
+            <p>Cargando...</p>
+        }
+        else if (!gruposPorDia.Any())
+        {
+            <div class="alert alert-info">
+                No hay facturas registradas para este mes.
+            </div>
+        }
+        else
+        {
+            <div class="accordion" id="accordionDias">
+                @foreach (var grupoDia in gruposPorDia.OrderByDescending(g => g.Key))
+                {
+                    var collapseId = $"collapse_{grupoDia.Key}";
+                    var headingId = $"heading_{grupoDia.Key}";
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="false"
+                                    aria-controls="@collapseId">
+                                Día @grupoDia.Key (@grupoDia.Value.Count)
+                            </button>
+                        </h2>
+
+                        <div id="@collapseId" class="accordion-collapse collapse"
+                             aria-labelledby="@headingId"
+                             data-bs-parent="#accordionDias">
+                            <div class="accordion-body p-0">
+
+                                <table class="table table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Cliente</th>
+                                            <th class="text-end">Artículos</th>
+                                            <th class="text-end">Total</th>
+                                            <th class="text-center" style="width:120px;">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var factura in grupoDia.Value)
+                                        {
+                                            <tr>
+                                                <td>@factura.Id</td>
+                                                <td>@factura.NombreCliente</td>
+                                                <td class="text-end">@factura.Articulos.Count</td>
+                                                <td class="text-end">$@factura.Total.ToString("N2")</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-info me-1"
+                                                            @onclick="@(() => VerDetalle(factura.Id))">
+                                                        Ver
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning"
+                                                            @onclick="@(() => Editar(factura.Id))">
+                                                        Editar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Anio { get; set; }
+    [Parameter] public int Mes { get; set; }
+
+    private Dictionary<int, List<FacturaModel>>? gruposPorDia;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicioControlador.CargarFacturasAsync();
+
+        var facturas = ServicioControlador.ObtenerFacturasFiltradas()
+            .Where(f => f.FechaFactura.Year == Anio &&
+                        f.FechaFactura.Month == Mes)
+            .ToList();
+
+        gruposPorDia = facturas
+            .GroupBy(f => f.FechaFactura.Day)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private string NombreMes(int mes)
+    {
+        return new System.Globalization.CultureInfo("es-ES")
+            .DateTimeFormat.GetMonthName(mes)
+            .ToUpperInvariant();
+    }
+
+    private void VerDetalle(int id)
+    {
+        Navigation.NavigateTo($"/detalle-factura/{id}");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/editar-factura/{id}");
+    }
+
+    private void Regresar()
+    {
+        Navigation.NavigateTo("/facturas-periodo");
+    }
+}

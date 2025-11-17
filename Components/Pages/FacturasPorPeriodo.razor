@@ -1,0 +1,83 @@
+﻿@page "/facturas-periodo"
+@rendermode InteractiveServer
+@using blazor.Components.Data
+@using blazor.Components.Servicios
+@using FacturaModel = blazor.Components.Data.Factura
+@inject ServicioControlador ServicioControlador
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    <div class="card p-4">
+
+        <h3>Facturas por Año y Mes</h3>
+        <hr />
+
+        @if (grupos == null)
+        {
+            <p>Cargando...</p>
+        }
+        else
+        {
+            @foreach (var grupoAnio in grupos.OrderByDescending(g => g.Key))
+            {
+                <div class="mt-3">
+                    <h5 class="fw-bold">@grupoAnio.Key</h5>
+                    <ul class="list-unstyled ms-3">
+                        @foreach (var grupoMes in grupoAnio.Value.OrderByDescending(g => g.Key))
+                        {
+                            <li class="mb-1">
+                                <a class="link-primary" style="cursor:pointer;"
+                                   @onclick="() => VerFacturasMes(grupoAnio.Key, grupoMes.Key)">
+                                    @NombreMes(grupoMes.Key) (@grupoMes.Value.Count)
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+
+        <div class="mt-4">
+            <button class="btn btn-secondary" @onclick="Volver">
+                Regresar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private Dictionary<int, Dictionary<int, List<FacturaModel>>>? grupos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicioControlador.CargarFacturasAsync();
+
+        var facturas = ServicioControlador.ObtenerFacturasFiltradas().ToList();
+
+        grupos = facturas
+            .GroupBy(f => f.FechaFactura.Year)
+            .ToDictionary(
+                g => g.Key,
+                g => g.GroupBy(f => f.FechaFactura.Month)
+                    .ToDictionary(m => m.Key, m => m.ToList())
+            );
+    }
+
+    private void VerFacturasMes(int anio, int mes)
+    {
+        Navigation.NavigateTo($"/facturas-mes/{anio}/{mes}");
+    }
+
+    private string NombreMes(int mes)
+    {
+        return new System.Globalization.CultureInfo("es-ES")
+            .DateTimeFormat.GetMonthName(mes)
+            .ToUpperInvariant();
+    }
+
+    private void Volver()
+    {
+        Navigation.NavigateTo("/Vista");
+    }
+}

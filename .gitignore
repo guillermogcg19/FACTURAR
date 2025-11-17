@@ -1,0 +1,19 @@
+# GitIgnore para BlazorServer 
+*.db 
+*.sqlite 
+*.sqlite3 
+/wwwroot/*.db 
+/Data/*.db 
+# --- Compilaci¢n --- 
+bin/ 
+obj/ 
+**/bin/ 
+**/obj/ 
+# --- Configuraci¢n local --- 
+.vs/ 
+*.user 
+*.suo 
+# --- Publicaci¢n --- 
+/publish/ 
+/dist/ 
+*.db 

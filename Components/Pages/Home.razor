@@ -1,7 +1,41 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Imperio de Facturas</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="d-flex align-items-center justify-content-center" style="min-height: 75vh;">
+    <div class="card shadow-lg p-5 text-center" style="max-width: 650px; width:100%;">
 
-Welcome to your new app.
+        <h1 class="fw-bold mb-4 animate__animated animate__fadeInDown">
+            👑 Bienvenido al Imperio de Facturas 👑
+        </h1>
+
+        <p class="lead mb-4">
+            Aquí no hay errores... solo recargos 😎
+            Si la regaste, ¡generamos otra factura y listo!
+        </p>
+
+        <span class="text-muted d-block mb-3">Elige tu destino contable:</span>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap mt-2">
+            <a href="/Vista" class="btn btn-outline-light btn-lg">
+                📑 Ver Facturas
+            </a>
+
+            <a href="/nueva-factura" class="btn btn-success btn-lg">
+                ➕ Crear Factura
+            </a>
+        </div>
+
+        <div class="mt-3">
+            <a href="/facturas-periodo" class="btn btn-outline-info btn-sm">
+                📅 Facturas por Año/Mes
+            </a>
+        </div>
+
+        <p class="text-muted mt-4 small">
+            Software creado con sudor, lágrimas y desveladas por el <br />
+            <strong>autor Guillermo</strong> 😌🔥
+        </p>
+
+    </div>
+</div>

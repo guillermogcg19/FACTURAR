@@ -1,0 +1,4 @@
+wwwroot\app.css
+wwwroot\Index.html
+C:\Users\Guillermo\Desktop\Facturar\Factura\wwwroot\app.css
+C:\Users\Guillermo\Desktop\Facturar\Factura\wwwroot\Index.html

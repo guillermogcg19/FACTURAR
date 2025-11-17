@@ -1,0 +1,135 @@
+﻿@page "/detalle-factura/{FacturaId:int}"
+@rendermode InteractiveServer
+@using blazor.Components.Data
+@using blazor.Components.Servicios
+@inject blazor.Components.Servicios.ServicioControlador ServicioControlador
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    <div class="card p-4">
+
+        <button class="ts-button mb-4" @onclick="VolverALista">
+            &larr; Volver a Facturas
+        </button>
+
+        @if (Cargando)
+        {
+            <div class="d-flex align-items-center">
+                <div class="spinner-border" role="status" aria-hidden="true"></div>
+                <span>Cargando detalle de la factura...</span>
+            </div>
+        }
+        else if (FacturaDetalle == null)
+        {
+            <h3 class="ts-title">Factura no encontrada </h3>
+            <div class="alert alert-danger">
+                No se pudo cargar la factura con ID: <strong>@FacturaId</strong>.
+            </div>
+        }
+        else
+        {
+            <h3 class="ts-title">
+                <span class="ts-pink">Detalle de Factura #@FacturaDetalle.Id </span>
+            </h3>
+
+            <hr />
+
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <h5 class="mb-0">Cliente: <strong>@FacturaDetalle.NombreCliente</strong></h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Fecha:</strong> @FacturaDetalle.FechaFactura.ToShortDateString()</p>
+                    <hr />
+
+                    <h5>Artículos Incluidos:</h5>
+
+                    @if (FacturaDetalle.Articulos == null || !FacturaDetalle.Articulos.Any())
+                    {
+                        <div class="alert alert-info">
+                            No hay artículos en esta factura.
+                        </div>
+
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Precio Unitario</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-center">— Sin artículos —</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">TOTAL DE FACTURA</th>
+                                    <th class="text-end">$@FacturaDetalle.Total.ToString("N2")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    }
+                    else
+                    {
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Precio Unitario</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in FacturaDetalle.Articulos)
+                                {
+                                    <tr>
+                                        <td>@item.Descripcion</td>
+                                        <td class="text-end">@item.Cantidad</td>
+                                        <td class="text-end">$@item.Precio.ToString("N2")</td>
+                                        <td class="text-end">$@item.Subtotal.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">TOTAL DE FACTURA</th>
+                                    <th class="text-end">$@FacturaDetalle.Total.ToString("N2")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int FacturaId { get; set; }
+
+    private Factura? FacturaDetalle { get; set; }
+    private bool Cargando { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Cargando = true;
+            FacturaDetalle = await ServicioControlador.ObtenerFacturaPorIdAsync(FacturaId);
+        }
+        finally
+        {
+            Cargando = false;
+        }
+    }
+
+    private void VolverALista()
+    {
+        Navigation.NavigateTo("/Vista");
+    }
+}
