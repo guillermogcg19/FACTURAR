@@ -1,4 +1,6 @@
 wwwroot\app.css
 wwwroot\Index.html
-C:\Users\Guillermo\Desktop\Facturar\Factura\wwwroot\app.css
+wwwroot\js\estadisticas.js
+C:\Users\Guillermo\Desktop\Facturar\Factura\wwwroot\js\estadisticas.js
 C:\Users\Guillermo\Desktop\Facturar\Factura\wwwroot\Index.html
+C:\Users\Guillermo\Desktop\Facturar\Factura\wwwroot\app.css

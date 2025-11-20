@@ -1,16 +1,14 @@
-using blazor.Components;
-using blazor.Components.Data;
-using blazor.Components.Servicios;
-using Factura.Components;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using Factura.Components;
+using blazor.Components.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-String ruta = "mibase_facturas.db";
+string ruta = "mibase_facturas.db";
 
 builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
 {
@@ -19,15 +17,16 @@ builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
 
 builder.Services.AddTransient<ServicioFacturas>(sp =>
 {
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    string connectionString = configuration.GetConnectionString("DefaultConnection")
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    string cs = cfg.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-    return new ServicioFacturas(connectionString);
+    return new ServicioFacturas(cs);
 });
 
 builder.Services.AddTransient<ServicioControlador>();
 
 var app = builder.Build();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -43,74 +42,94 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-using var conexion = new SqliteConnection($"Data Source={ruta}");
-conexion.Open();
-var comando = conexion.CreateCommand();
-comando.CommandText = """
-    CREATE TABLE IF NOT EXISTS Facturas (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        FechaFactura TEXT NOT NULL,
-        NombreCliente TEXT NOT NULL
-    );
-    """;
-comando.ExecuteNonQuery();
+using var cx = new SqliteConnection($"Data Source={ruta}");
+cx.Open();
 
-comando.CommandText = """
-    CREATE TABLE IF NOT EXISTS ArticulosFactura (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        FacturaId INTEGER NOT NULL,
-        Descripcion TEXT NOT NULL,
-        Precio REAL NOT NULL,
-        Cantidad INTEGER NOT NULL DEFAULT 1,
-        FOREIGN KEY(FacturaId) REFERENCES Facturas(Id)
-    );
-    """;
-comando.ExecuteNonQuery();
+var cmd = cx.CreateCommand();
 
-// Comprobación automática: si la tabla existe pero le falta la columna Cantidad, la añadimos
-try
+cmd.CommandText = """
+CREATE TABLE IF NOT EXISTS Facturas (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    FechaFactura TEXT NOT NULL,
+    NombreCliente TEXT NOT NULL
+);
+""";
+cmd.ExecuteNonQuery();
+
+cmd.CommandText = """
+CREATE TABLE IF NOT EXISTS ArticulosFactura (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    FacturaId INTEGER NOT NULL,
+    Descripcion TEXT NOT NULL,
+    Precio REAL NOT NULL,
+    Cantidad INTEGER NOT NULL DEFAULT 1,
+    FOREIGN KEY(FacturaId) REFERENCES Facturas(Id)
+);
+""";
+cmd.ExecuteNonQuery();
+
+cmd.CommandText = """
+CREATE TABLE IF NOT EXISTS configuracion (
+    clave TEXT PRIMARY KEY,
+    valor TEXT
+);
+""";
+cmd.ExecuteNonQuery();
+
+cmd.CommandText = """
+INSERT OR IGNORE INTO configuracion (clave, valor)
+VALUES ('FiltroNombreCliente', '');
+""";
+cmd.ExecuteNonQuery();
+
+var chk = cx.CreateCommand();
+chk.CommandText = "SELECT COUNT(*) FROM Facturas;";
+long total = (long)chk.ExecuteScalar();
+
+if (total == 0)
 {
-    var checkCmd = conexion.CreateCommand();
-    checkCmd.CommandText = "PRAGMA table_info(ArticulosFactura);";
-    using var reader = checkCmd.ExecuteReader();
-    bool tieneCantidad = false;
-    while (reader.Read())
-    {
-        var nombreCol = reader.GetString(1);
-        if (string.Equals(nombreCol, "Cantidad", StringComparison.OrdinalIgnoreCase))
-        {
-            tieneCantidad = true;
-            break;
-        }
-    }
-
-    if (!tieneCantidad)
-    {
-        var alterCmd = conexion.CreateCommand();
-        alterCmd.CommandText = "ALTER TABLE ArticulosFactura ADD COLUMN Cantidad INTEGER NOT NULL DEFAULT 1;";
-        alterCmd.ExecuteNonQuery();
-        Console.WriteLine("Migración: columna 'Cantidad' añadida a ArticulosFactura.");
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Error comprobando/migrando esquema SQLite: {ex.Message}");
-}
-
-comando.CommandText = """
-    CREATE TABLE IF NOT EXISTS configuracion (
-        clave TEXT PRIMARY KEY,
-        valor TEXT
-    );
+    cmd.CommandText = """
+    INSERT INTO Facturas (FechaFactura, NombreCliente) VALUES
+    ('2025-01-03','Luis Martínez'),
+    ('2025-01-05','Ana Torres'),
+    ('2025-01-06','Carlos Vega'),
+    ('2025-01-08','Fernanda López'),
+    ('2025-01-09','Pedro Sánchez');
     """;
-comando.ExecuteNonQuery();
+    cmd.ExecuteNonQuery();
 
-comando.CommandText = """
-    INSERT OR IGNORE INTO configuracion (clave, valor) 
-    VALUES ('FiltroNombreCliente', '');
-    """;
-comando.ExecuteNonQuery();
+    cmd.CommandText = """
+INSERT INTO ArticulosFactura (FacturaId,Descripcion,Precio,Cantidad) VALUES
+(1,'Tesla Model S',1740000,1),
+(1,'Tesla Model 3',875000,2),
+(2,'BMW M5',2390000,1),
+(3,'Mercedes AMG GT',4200000,1),
+(4,'BMW X6',1850000,1),
+(5,'Tesla Model Y',1100000,3),
 
-conexion.Close();
+-- Casas y bienes raíces
+(3,'Casa residencial',4500000,1),
+(4,'Departamento en playa',6200000,1),
 
-app.Run();          
+-- Gasolina
+(1,'Gasolina Premium',25,40),
+(2,'Gasolina Magna',22,50),
+(5,'Gasolina Diesel',24,80),
+
+-- Comida y restaurantes
+(1,'Cena lujo restaurante',3500,2),
+(3,'Sushi Omakase',4200,3),
+(4,'Buffet Gourmet',1800,4),
+
+-- Compras de lujo
+(1,'Rolex Submariner',215000,1),
+(2,'Louis Vuitton Bolsa',58000,1),
+(5,'Gucci Sneakers',35000,2);
+""";
+    cmd.ExecuteNonQuery();
+
+}
+
+cx.Close();
+
+app.Run();

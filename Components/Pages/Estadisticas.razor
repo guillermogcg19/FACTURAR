@@ -1,0 +1,72 @@
+﻿@page "/estadisticas"
+@using blazor.Components.Servicios
+@inject ServicioControlador servicio
+
+<h3 class="mt-3">📊 Estadísticas del Sistema de Facturas</h3>
+
+@if (cargando)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="card p-3 mt-3">
+        <h5>👑 Cliente que más dinero ha gastado</h5>
+        <p>@servicio.ClienteQueMasDinero()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>🚗 Cliente con más coches comprados</h5>
+        <p>@servicio.ClienteConMasCompras()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>🏆 Auto más vendido</h5>
+        <p>@servicio.AutoMasVendido()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>💸 Factura más alta</h5>
+        <p>@servicio.VentaMasCara()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>🏬 Marca más vendida</h5>
+        <p>@servicio.MarcaMasVendida()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>💰 Ingreso Total</h5>
+        <p>@servicio.IngresoTotal()</p>
+    </div>
+    <div class="card p-3 mt-3">
+        <h5>💎 Producto más caro vendido</h5>
+        <p>@servicio.ProductoMasCaro()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>📦 Categoría más vendida</h5>
+        <p>@servicio.CategoriaMasVendida()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>🏅 Mayor comprador por dinero</h5>
+        <p>@servicio.MayorComprador()</p>
+    </div>
+
+    <div class="card p-3 mt-3">
+        <h5>📊 Total de artículos vendidos</h5>
+        <p>@servicio.TotalArticulosVendidos()</p>
+    </div>
+
+}
+
+@code {
+    bool cargando = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await servicio.CargarFacturasAsync();
+        cargando = false;
+    }
+}
