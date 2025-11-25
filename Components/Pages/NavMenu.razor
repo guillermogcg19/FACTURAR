@@ -1,0 +1,28 @@
+﻿<nav class="nav-top premium-navbar">
+    <div class="nav-brand">
+        <a href="/" class="brand-link">Facturas Pro</a>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <a href="/Vista">Facturas</a>
+        <a href="/facturas-periodo">Años/Meses</a>
+        <a href="/estadisticas">Estadísticas</a>
+    </div>
+    <button class="btn-theme material-icons-rounded" onclick="toggleTheme()">
+        dark_mode
+    </button>
+
+    <button class="menu-btn" @onclick="ToggleMenu">☰</button>
+</nav>
+
+@code {
+    bool menuVisible = false;
+
+    void ToggleMenu()
+    {
+        menuVisible = !menuVisible;
+        JS.InvokeVoidAsync("toggleMenu");
+    }
+
+    [Inject] IJSRuntime JS { get; set; }
+}

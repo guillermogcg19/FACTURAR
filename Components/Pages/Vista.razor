@@ -7,78 +7,65 @@
 @inject NavigationManager Navigation
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
-<div class="container mt-4">
-    <div class="card p-4">
+<div class="home-wrapper fade-in">
+    <div class="home-card p-4" style="max-width: 880px; width: 100%;">
 
-        <h1 class="mb-3">Facturas Registradas</h1>
-        <hr />
+        <h2 class="text-center mb-4">📄 Facturas Registradas</h2>
 
-        <div class="row mb-4 align-items-center">
+        <div class="row gy-2 mb-3">
             <div class="col-md-6">
                 <div class="input-group">
                     <input @bind="ServicioControlador.FiltroNombreCliente"
                            @bind:event="oninput"
-                           placeholder="Filtrar por Nombre de Cliente..."
+                           placeholder="🔍 Filtrar Cliente..."
                            class="form-control" />
 
-                    <button class="btn btn-secondary" @onclick="BorrarFiltroNombre">
-                        Borrar
+                    <button class="btn btn-outline-secondary" @onclick="BorrarFiltroNombre">
+                        Borrar ❌
                     </button>
                 </div>
             </div>
 
             <div class="col-md-6 d-flex justify-content-end">
-                <div class="input-group" style="max-width: 300px;">
-                    <label class="input-group-text">Ordenar:</label>
-                    <select @bind="OrdenacionAuxiliar" class="form-select">
-                        @foreach (var criterio in Enum.GetValues<CriterioOrdenacion>())
-                        {
-                            <option value="@criterio">@ObtenerTextoCriterio(criterio)</option>
-                        }
-                    </select>
-                </div>
+                <select @bind="OrdenacionAuxiliar" class="form-select">
+                    @foreach (var criterio in Enum.GetValues<CriterioOrdenacion>())
+                    {
+                        <option value="@criterio">@ObtenerTextoCriterio(criterio)</option>
+                    }
+                </select>
             </div>
         </div>
 
-        <p class="text-start mb-4 d-flex gap-2">
-            <button class="btn btn-primary" @onclick="CrearNuevaFactura">
-                Crear Nueva Factura
-            </button>
-
-            <a href="/facturas-periodo" class="btn btn-outline-primary">
-                Facturas por Año y Mes
-            </a>
-        </p>
+        <div class="d-flex gap-2 mb-4 justify-content-center flex-wrap">
+            <button class="btn btn-primary" @onclick="CrearNuevaFactura">➕ Nueva Factura</button>
+            <a href="/facturas-periodo" class="btn btn-outline-primary">📊 Facturas por Año/Mes</a>
+        </div>
 
         @if (FacturasFiltradas.Any())
         {
-            <table class="table table-hover table-striped">
-                <thead>
+            <table class="table table-hover table-striped text-center">
+                <thead class="table-dark">
                     <tr>
                         <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th class="text-end">Artículos</th>
-                        <th class="text-end">Total</th>
-                        <th class="text-center" style="width: 120px;">Acciones</th>
+                        <th>📅 Fecha</th>
+                        <th>👤 Cliente</th>
+                        <th>🛒 Artículos</th>
+                        <th>💰 Total</th>
+                        <th>⚙️ Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var factura in FacturasFiltradas)
                     {
-                        <tr>
-                            <td @onclick="() => VerDetalle(factura.Id)">@factura.Id</td>
-                            <td @onclick="() => VerDetalle(factura.Id)">@factura.FechaFactura.ToShortDateString()</td>
-                            <td @onclick="() => VerDetalle(factura.Id)">@factura.NombreCliente</td>
-                            <td @onclick="() => VerDetalle(factura.Id)" class="text-end">@factura.Articulos.Count</td>
-                            <td @onclick="() => VerDetalle(factura.Id)" class="text-end">$@factura.Total.ToString("N2")</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-info" @onclick="() => EditarFactura(factura.Id)">
-                                    Editar
-                                </button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarEliminar(factura.Id)">
-                                    Eliminar
-                                </button>
+                        <tr class="clickable-row" @onclick="() => VerDetalle(factura.Id)">
+                            <td>@factura.Id</td>
+                            <td>@factura.FechaFactura.ToShortDateString()</td>
+                            <td>@factura.NombreCliente</td>
+                            <td>@factura.Articulos.Count</td>
+                            <td>$@factura.Total.ToString("N2")</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning me-1" @onclick="() => EditarFactura(factura.Id)">✏️</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarEliminar(factura.Id)">🗑️</button>
                             </td>
                         </tr>
                     }
@@ -87,16 +74,15 @@
         }
         else
         {
-            <div class="alert alert-warning">
-                No se encontraron facturas que coincidan con el filtro.
+            <div class="alert alert-warning text-center">
+                ⚠️ No hay facturas que coincidan con el filtro.
             </div>
         }
 
-        <p class="mt-3">
-            <a href="/" class="btn btn-secondary">
-                Regresar al Inicio
-            </a>
-        </p>
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-outline-dark">⬅ Regresar al Inicio</a>
+        </div>
+
     </div>
 </div>
 
@@ -113,53 +99,32 @@
         get => ServicioControlador.OrdenacionSeleccionada;
         set
         {
-            if (ServicioControlador.OrdenacionSeleccionada != value)
-            {
-                ServicioControlador.OrdenacionSeleccionada = value;
-                StateHasChanged();
-            }
+            ServicioControlador.OrdenacionSeleccionada = value;
+            StateHasChanged();
         }
     }
 
-    private string ObtenerTextoCriterio(CriterioOrdenacion criterio)
+    private string ObtenerTextoCriterio(CriterioOrdenacion criterio) => criterio switch
     {
-        return criterio switch
-        {
-            CriterioOrdenacion.FechaDescendente => "Fecha (Más Reciente)",
-            CriterioOrdenacion.IdDescendente => "ID (Más Alto)",
-            CriterioOrdenacion.NombreClienteAscendente => "Cliente (A-Z)",
-            _ => criterio.ToString()
-        };
-    }
+        CriterioOrdenacion.FechaDescendente => "Fecha (Más Reciente)",
+        CriterioOrdenacion.IdDescendente => "ID (Más Alto)",
+        CriterioOrdenacion.NombreClienteAscendente => "Cliente (A-Z)",
+        _ => criterio.ToString()
+    };
 
     private void BorrarFiltroNombre()
     {
         ServicioControlador.FiltroNombreCliente = string.Empty;
         StateHasChanged();
     }
-
-    private void VerDetalle(int facturaId)
+    private void VerDetalle(int id) => Navigation.NavigateTo($"/detalle-factura/{id}");
+    private void CrearNuevaFactura() => Navigation.NavigateTo("/nueva-factura");
+    private void EditarFactura(int id) => Navigation.NavigateTo($"/editar-factura/{id}");
+    private async Task ConfirmarEliminar(int id)
     {
-        Navigation.NavigateTo($"/detalle-factura/{facturaId}");
-    }
-
-    private void CrearNuevaFactura()
-    {
-        Navigation.NavigateTo("/nueva-factura");
-    }
-
-    private void EditarFactura(int facturaId)
-    {
-        Navigation.NavigateTo($"/editar-factura/{facturaId}");
-    }
-
-    private async Task ConfirmarEliminar(int facturaId)
-    {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro de eliminar la Factura # {facturaId}?");
-
-        if (confirmed)
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"¿Eliminar Factura # {id}?"))
         {
-            await ServicioControlador.EliminarFacturaAsync(facturaId);
+            await ServicioControlador.EliminarFacturaAsync(id);
             StateHasChanged();
         }
     }

@@ -1,7 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 
+
 <head>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
@@ -14,6 +16,17 @@
 <body>
     <Routes />
     <script src="_framework/blazor.web.js"></script>
+    <button onclick="toggleTheme()" class="btn-theme">🌗</button>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.dataset.theme === "dark") html.dataset.theme = "light";
+            else html.dataset-theme = "dark";
+        }
+    </script>
+
 </body>
+
 
 </html>

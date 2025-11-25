@@ -1,154 +1,158 @@
-﻿/* ====== 🖤 Tema Oscuro Moderno Pro Max ======= */
+﻿/* 🌐==== GLASS FINANCE UI FINAL ====🌐 */
 
+/* 🎨 ROOT VARIABLES */
 :root {
-    --bg-color: #0f1113;
-    --card-bg: #1b1d20;
-    --card-hover: #222428;
-    --text-color: #e8e8e8;
-    --text-muted: #aaa;
-    --accent: #4e9cff;
-    --accent-hover: #1e7be4;
-    --danger: #ff4c4c;
-    --danger-hover: #cc3b3b;
-    --success: #3dd68c;
-    --success-hover: #25a86a;
-    --radius: 10px;
-    --shadow: 0 8px 18px rgba(0,0,0,0.25);
+    --bg: #F5F6FA;
+    --text: #1A1A1A;
+    --muted: #6D6D6D;
+    --card: rgba(255,255,255,0.60);
+    --card-border: rgba(255,255,255,0.30);
+    --primary: #0066FF;
+    --primary-hover: #004FCC;
+    --radius: 18px;
+    --shadow: 0 14px 42px rgba(0,0,0,0.08);
+    --blur: blur(22px);
 }
 
-/* Fondo general */
+    :root[data-theme="dark"] {
+        --bg: #111315;
+        --text: #ECECEC;
+        --muted: #AAAAAA;
+        --card: rgba(30,33,37,0.52);
+        --card-border: rgba(255,255,255,0.05);
+        --shadow: 0 14px 48px rgba(0,0,0,0.55);
+        --primary-hover: #1F6FEA;
+    }
+
+/* 📌 GLOBAL STYLES */
 body {
-    background-color: var(--bg-color);
-    color: var(--text-color) !important;
-    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    font-family: "Inter", "Poppins", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: .35s ease;
 }
 
-/* NAVBAR */
-.custom-nav {
-    background: linear-gradient(90deg, #131416, #1f2124);
-    border-bottom: 1px solid #333;
-}
-
-/* CARDS */
-.card {
-    background: var(--card-bg) !important;
-    border: 1px solid #2c2e31;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    transition: transform .25s ease, background .25s ease;
-}
-
-    .card:hover {
-        background: var(--card-hover);
-        transform: translateY(-4px);
-    }
-
-/* TABLAS */
-.table {
-    color: var(--text-color);
-    background-color: var(--card-bg) !important;
-    border-radius: var(--radius);
-    overflow: hidden;
-}
-
-    .table thead {
-        background-color: #27292d !important;
-        border-bottom: 2px solid #333;
-    }
-
-.table-striped tbody tr:nth-child(odd) {
-    background-color: #202225 !important;
-}
-
-.table-striped tbody tr:hover {
-    background-color: #2c2f32 !important;
-    transition: background .2s ease-in-out;
-}
-
-.table td, .table th {
-    vertical-align: middle;
-}
-
-/* Inputs */
-input, select, textarea {
-    background-color: #222428 !important;
-    color: var(--text-color) !important;
-    border: 1px solid #3d3f42 !important;
-    border-radius: var(--radius) !important;
-}
-
-    input:focus, select:focus, textarea:focus {
-        border-color: var(--accent) !important;
-        outline: none !important;
-        box-shadow: 0 0 0 2px rgba(78,156,255,0.35);
-    }
-
-/* Botones */
-.btn {
-    border-radius: var(--radius) !important;
-    font-weight: 600;
-    transition: .25s;
-}
-
-.btn-primary {
-    background-color: var(--accent) !important;
-    color: white !important;
-}
-
-    .btn-primary:hover {
-        background-color: var(--accent-hover) !important;
-    }
-
-.btn-danger {
-    background-color: var(--danger) !important;
-    color: white !important;
-}
-
-    .btn-danger:hover {
-        background-color: var(--danger-hover) !important;
-    }
-
-.btn-success {
-    background-color: var(--success) !important;
-    color: white !important;
-}
-
-    .btn-success:hover {
-        background-color: var(--success-hover) !important;
-    }
-
-.btn-outline-info,
-.btn-outline-light {
-    border-width: 2px;
-}
-
-    .btn-outline-info:hover,
-    .btn-outline-light:hover {
-        opacity: 0.85;
-    }
-
-/* Links */
 a {
-    color: var(--accent) !important;
-    transition: .25s;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
 }
 
     a:hover {
-        color: var(--accent-hover) !important;
+        color: var(--primary-hover);
     }
 
-/* Alertas */
-.alert {
-    background-color: #25282c !important;
-    border: 1px solid #333 !important;
-    color: var(--text-color) !important;
+/* 🟦 HOME SECTION */
+.home-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 88vh;
+    padding: 0 14px;
 }
 
-/* Animación suave */
-.main-content {
-    animation: fadeSlide .5s ease;
+.home-card {
+    width: 560px;
+    padding: 55px 45px;
+    background: var(--card);
+    backdrop-filter: var(--blur);
+    border-radius: var(--radius);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow);
+    animation: fadeSlide .6s ease;
 }
 
+    .home-card h1 {
+        font-weight: 800;
+        font-size: 2.35rem;
+        letter-spacing: -1px;
+        margin-bottom: 10px;
+    }
+
+    .home-card p {
+        color: var(--muted);
+        font-size: 1rem;
+    }
+
+/* 🟪 MENU BUTTONS */
+.actions {
+    margin-top: 32px;
+    display: grid;
+    gap: 12px;
+}
+
+.btn-menu {
+    padding: 14px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--card-border);
+    font-weight: 600;
+    background: rgba(255,255,255,0.42);
+    color: var(--text);
+    transition: .25s ease;
+}
+
+[data-theme="dark"] .btn-menu {
+    background: rgba(50,50,55,0.35);
+}
+
+.btn-menu:hover {
+    background: var(--primary);
+    color: #fff !important;
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 20px rgba(0, 102, 255, 0.35);
+}
+
+/* 🗂 GLASS CARDS / TABLES */
+.card,
+.glass,
+.table {
+    background: var(--card) !important;
+    backdrop-filter: var(--blur);
+    border-radius: var(--radius);
+    border: 1px solid var(--card-border) !important;
+    box-shadow: var(--shadow);
+    transition: .3s ease;
+}
+
+    .card:hover {
+        transform: translateY(-4px);
+    }
+
+/* 💠 BUTTONS */
+.btn-primary {
+    background: var(--primary) !important;
+    border-radius: var(--radius) !important;
+    border: none !important;
+    padding: 10px 25px;
+    font-weight: 600;
+}
+
+    .btn-primary:hover {
+        background: var(--primary-hover) !important;
+    }
+
+/* 🌙 LIGHT/DARK SWITCH */
+.btn-theme {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    font-size: 21px;
+    background: var(--card);
+    border-radius: 50%;
+    padding: 10px;
+    border: none;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    backdrop-filter: var(--blur);
+    transition: .25s ease;
+}
+
+    .btn-theme:hover {
+        transform: scale(1.1);
+    }
+
+/* 🎞 ANIMATIONS */
 @keyframes fadeSlide {
     from {
         opacity: 0;
@@ -160,29 +164,211 @@ a {
         transform: translateY(0);
     }
 }
+/* === FACTURAS UI === */
 
-/* ScrollBar Personalizada */
-::-webkit-scrollbar {
-    width: 8px;
+.page-title {
+    font-size: 2.3rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #36383b;
-    border-radius: 4px;
+.glass-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
 }
 
-    ::-webkit-scrollbar-thumb:hover {
-        background: #4c4e51;
-    }
+.filter-input {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    width: 220px;
+}
 
-.chart-container {
-    width: 100%;
-    height: 350px;
+.btn-clear {
+    border-radius: var(--radius);
+    border: none;
+    padding: 10px 14px;
+    background: var(--danger);
+    color: #fff;
+    cursor: pointer;
+}
+
+.actions-grid {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.table-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
     padding: 10px;
 }
 
-    .chart-container canvas {
-        width: 100% !important;
-        height: 100% !important;
+.btn-action {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: .85rem;
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+    .btn-action.edit {
+        background: var(--primary);
+        color: #fff !important;
     }
 
+    .btn-action.delete {
+        background: var(--danger);
+        color: #fff !important;
+    }
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 25px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+/* === BOTONES MATERIAL YOU / GLASS PREMIUM === */
+.m-btn {
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    padding: 12px 20px;
+    transition: .25s ease;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+/* Elevated Button */
+.m-elevated {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow);
+    color: var(--text);
+}
+
+    .m-elevated:hover {
+        background: rgba(255,255,255,0.85);
+    }
+
+/* Filled Button */
+.m-filled {
+    background: var(--primary);
+    color: white !important;
+}
+
+    .m-filled:hover {
+        background: var(--primary-hover);
+    }
+
+/* Outlined Button */
+.m-outlined {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+    .m-outlined:hover {
+        background: rgba(0,102,255,0.15);
+    }
+
+/* Tonal Button */
+.m-tonal {
+    background: rgba(0,102,255,0.15);
+    color: var(--primary);
+}
+
+    .m-tonal:hover {
+        background: rgba(0,102,255,0.25);
+    }
+
+/* Icon Button Style */
+.m-icon {
+    border-radius: 50%;
+    padding: 10px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+}
+
+    .m-icon:hover {
+        transform: scale(1.08);
+    }
+.m-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+/* ===================== MATERIAL YOU BUTTONS ====================== */
+.m-btn {
+    font-family: "Inter", sans-serif;
+    border-radius: 14px;
+    padding: 12px 22px;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-block;
+    transition: .25s ease;
+    user-select: none;
+    font-size: 0.95rem;
+}
+
+/* Elevated */
+.m-elevated {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow);
+    color: var(--text);
+}
+
+    .m-elevated:hover {
+        transform: translateY(-3px);
+        background: rgba(255,255,255,0.75);
+    }
+
+/* Filled */
+.m-filled {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+}
+
+    .m-filled:hover {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+    }
+
+/* Tonal */
+.m-tonal {
+    background: rgba(0, 102, 255, .15);
+    color: var(--primary);
+    border: none;
+}
+
+    .m-tonal:hover {
+        background: rgba(0, 102, 255, .22);
+        transform: translateY(-3px);
+    }
+
+/* Outlined */
+.m-outlined {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+    .m-outlined:hover {
+        border-color: var(--primary-hover);
+        color: var(--primary-hover);
+        transform: translateY(-3px);
+    }

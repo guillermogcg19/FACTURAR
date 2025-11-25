@@ -61,6 +61,7 @@ C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\refint\Factura.dll
 C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\Factura.pdb
 C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\Factura.genruntimeconfig.cache
 C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\ref\Factura.dll
-C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\compressed\h8korsrrlj-5r6zre1q2w.gz
-C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\compressed\8wos8tpjue-jzfyvqzdwx.gz
 C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\compressed\e6uosx2vya-lazujb2067.gz
+C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\compressed\q7x79qrgfg-sypjwzwbzm.gz
+C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\compressed\h8korsrrlj-noau9v4e4r.gz
+C:\Users\Guillermo\Desktop\Facturar\Factura\obj\Debug\net9.0\compressed\8wos8tpjue-4lffmu2o9m.gz
