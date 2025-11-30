@@ -39,6 +39,7 @@
         <div class="d-flex gap-2 mb-4 justify-content-center flex-wrap">
             <button class="btn btn-primary" @onclick="CrearNuevaFactura">➕ Nueva Factura</button>
             <a href="/facturas-periodo" class="btn btn-outline-primary">📊 Facturas por Año/Mes</a>
+            <a href="/facturas-archivadas" class="btn btn-outline-warning">📂 Facturas Archivadas</a>
         </div>
 
         @if (FacturasFiltradas.Any())
@@ -63,9 +64,11 @@
                             <td>@factura.NombreCliente</td>
                             <td>@factura.Articulos.Count</td>
                             <td>$@factura.Total.ToString("N2")</td>
-                            <td>
+
+                            <td style="white-space: nowrap;" @onclick:stopPropagation="true">
                                 <button class="btn btn-sm btn-warning me-1" @onclick="() => EditarFactura(factura.Id)">✏️</button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => ConfirmarEliminar(factura.Id)">🗑️</button>
+                                <button class="btn btn-sm btn-danger me-1" @onclick="() => ConfirmarEliminar(factura.Id)">🗑️</button>
+                                <button class="btn btn-sm btn-secondary" @onclick="() => ArchivarFactura(factura.Id)">📂</button>
                             </td>
                         </tr>
                     }
@@ -94,6 +97,7 @@
     }
 
     private IEnumerable<FacturaModel> FacturasFiltradas => ServicioControlador.ObtenerFacturasFiltradas();
+
     private CriterioOrdenacion OrdenacionAuxiliar
     {
         get => ServicioControlador.OrdenacionSeleccionada;
@@ -117,15 +121,29 @@
         ServicioControlador.FiltroNombreCliente = string.Empty;
         StateHasChanged();
     }
+
     private void VerDetalle(int id) => Navigation.NavigateTo($"/detalle-factura/{id}");
     private void CrearNuevaFactura() => Navigation.NavigateTo("/nueva-factura");
     private void EditarFactura(int id) => Navigation.NavigateTo($"/editar-factura/{id}");
+
     private async Task ConfirmarEliminar(int id)
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", $"¿Eliminar Factura # {id}?"))
         {
             await ServicioControlador.EliminarFacturaAsync(id);
+            await ServicioControlador.CargarFacturasAsync();
             StateHasChanged();
         }
     }
+
+    private async Task ArchivarFactura(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"¿Archivar la factura #{id}?"))
+        {
+            await ServicioControlador.ArchivarFacturaAsync(id);
+            await ServicioControlador.CargarFacturasAsync();
+            StateHasChanged();
+        }
+    }
+
 }

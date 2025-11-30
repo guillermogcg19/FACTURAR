@@ -17,20 +17,27 @@ namespace blazor.Components.Servicios
     public class ServicioControlador
     {
         private readonly ServicioFacturas _servicioFacturas;
+
         private const string CLAVE_FILTRO_CLIENTE = "FiltroNombreCliente";
         private const string CLAVE_ORDENACION = "CriterioOrdenacion";
+
         public string FiltroNombreCliente { get; set; } = string.Empty;
         public CriterioOrdenacion OrdenacionSeleccionada { get; set; } = CriterioOrdenacion.FechaDescendente;
-        private List<FacturaModel> _facturasEnMemoria = new List<FacturaModel>();
+
+        private List<FacturaModel> _facturasEnMemoria = new();
 
         public ServicioControlador(ServicioFacturas servicioFacturas)
         {
             _servicioFacturas = servicioFacturas;
         }
 
+        // -------------------------------------------------------------
+        // CARGA DE CONFIGURACIÓN
+        // -------------------------------------------------------------
         public async Task CargarFiltroAsync()
         {
             FiltroNombreCliente = await _servicioFacturas.ObtenerConfiguracionAsync(CLAVE_FILTRO_CLIENTE);
+
             var ordenacionGuardada = await _servicioFacturas.ObtenerConfiguracionAsync(CLAVE_ORDENACION);
             if (Enum.TryParse(ordenacionGuardada, out CriterioOrdenacion orden))
                 OrdenacionSeleccionada = orden;
@@ -41,12 +48,18 @@ namespace blazor.Components.Servicios
             _facturasEnMemoria = (await _servicioFacturas.ObtenerTodasAsync()).ToList();
         }
 
+        // -------------------------------------------------------------
+        // FILTRADO
+        // -------------------------------------------------------------
         public IEnumerable<FacturaModel> ObtenerFacturasFiltradas()
         {
             IEnumerable<FacturaModel> resultado = _facturasEnMemoria;
 
             if (!string.IsNullOrWhiteSpace(FiltroNombreCliente))
-                resultado = resultado.Where(f => f.NombreCliente.Contains(FiltroNombreCliente, StringComparison.OrdinalIgnoreCase));
+            {
+                resultado = resultado.Where(f =>
+                    f.NombreCliente.Contains(FiltroNombreCliente, StringComparison.OrdinalIgnoreCase));
+            }
 
             resultado = OrdenacionSeleccionada switch
             {
@@ -55,6 +68,7 @@ namespace blazor.Components.Servicios
                 _ => resultado.OrderByDescending(f => f.FechaFactura)
             };
 
+            // Guardar preferencias de usuario
             Task.Run(async () =>
             {
                 await _servicioFacturas.GuardarConfiguracionAsync(CLAVE_FILTRO_CLIENTE, FiltroNombreCliente);
@@ -64,14 +78,19 @@ namespace blazor.Components.Servicios
             return resultado;
         }
 
+        // -------------------------------------------------------------
+        // CRUD FACTURAS
+        // -------------------------------------------------------------
         public async Task GuardarNuevaFacturaAsync(FacturaModel nuevaFactura)
         {
             await _servicioFacturas.AgregarFacturaAsync(nuevaFactura);
+            await CargarFacturasAsync();
         }
 
         public async Task ActualizarFacturaAsync(FacturaModel facturaEditada)
         {
             await _servicioFacturas.ActualizarFacturaAsync(facturaEditada);
+
             var index = _facturasEnMemoria.FindIndex(f => f.Id == facturaEditada.Id);
             if (index != -1)
                 _facturasEnMemoria[index] = facturaEditada;
@@ -80,9 +99,8 @@ namespace blazor.Components.Servicios
         public async Task EliminarFacturaAsync(int facturaId)
         {
             await _servicioFacturas.EliminarFacturaAsync(facturaId);
-            var facturaAEliminar = _facturasEnMemoria.FirstOrDefault(f => f.Id == facturaId);
-            if (facturaAEliminar != null)
-                _facturasEnMemoria.Remove(facturaAEliminar);
+
+            _facturasEnMemoria.RemoveAll(f => f.Id == facturaId);
         }
 
         public async Task<FacturaModel?> ObtenerFacturaPorIdAsync(int id)
@@ -91,13 +109,36 @@ namespace blazor.Components.Servicios
             if (facturaEnMemoria != null)
                 return facturaEnMemoria;
 
-            var facturaDesdeDB = await _servicioFacturas.ObtenerPorIdAsync(id);
-            if (facturaDesdeDB != null)
-                _facturasEnMemoria.Add(facturaDesdeDB);
+            var facturaDesdeDb = await _servicioFacturas.ObtenerPorIdAsync(id);
 
-            return facturaDesdeDB;
+            if (facturaDesdeDb != null)
+                _facturasEnMemoria.Add(facturaDesdeDb);
+
+            return facturaDesdeDb;
         }
 
+        // -------------------------------------------------------------
+        // ARCHIVAR / DESARCHIVAR (NUEVO)
+        // -------------------------------------------------------------
+        public async Task ArchivarFacturaAsync(int id)
+        {
+            await _servicioFacturas.ArchivarFacturaAsync(id);
+            _facturasEnMemoria.RemoveAll(f => f.Id == id); // la quitamos de la vista normal
+        }
+
+        public async Task DesarchivarFacturaAsync(int id)
+        {
+            await _servicioFacturas.DesarchivarFacturaAsync(id);
+
+            // recargar solo esta factura
+            var factura = await _servicioFacturas.ObtenerPorIdAsync(id);
+            if (factura != null)
+                _facturasEnMemoria.Add(factura);
+        }
+
+        // -------------------------------------------------------------
+        // MÉTRICAS Y ESTADÍSTICAS
+        // -------------------------------------------------------------
         public Dictionary<string, decimal> ObtenerTotalPorCliente()
         {
             return _facturasEnMemoria
@@ -148,6 +189,7 @@ namespace blazor.Components.Servicios
                 .Select(f => $"{f.NombreCliente} (${f.Total})")
                 .FirstOrDefault() ?? "Sin datos";
         }
+
         public string MarcaMasVendida()
         {
             var marca = _facturasEnMemoria
@@ -156,13 +198,14 @@ namespace blazor.Components.Servicios
                 .OrderByDescending(g => g.Sum(x => x.Cantidad))
                 .FirstOrDefault();
 
-            return marca != null ? marca.Key : "Sin datos";
+            return marca?.Key ?? "Sin datos";
         }
 
         public decimal IngresoTotal()
         {
             return _facturasEnMemoria.Sum(f => f.Total);
         }
+
         public string ProductoMasCaro()
         {
             var prod = _facturasEnMemoria
@@ -170,7 +213,7 @@ namespace blazor.Components.Servicios
                 .OrderByDescending(a => a.Precio)
                 .FirstOrDefault();
 
-            return prod != null ? prod.Descripcion : "Sin datos";
+            return prod?.Descripcion ?? "Sin datos";
         }
 
         public string CategoriaMasVendida()
@@ -181,7 +224,7 @@ namespace blazor.Components.Servicios
                 .OrderByDescending(g => g.Sum(x => x.Cantidad))
                 .FirstOrDefault();
 
-            return categoria != null ? categoria.Key : "Sin datos";
+            return categoria?.Key ?? "Sin datos";
         }
 
         private string ObtenerCategoria(string desc)
@@ -201,15 +244,12 @@ namespace blazor.Components.Servicios
                 .OrderByDescending(g => g.Sum(f => f.Total))
                 .FirstOrDefault();
 
-            return cliente != null ? cliente.Key : "Sin datos";
+            return cliente?.Key ?? "Sin datos";
         }
 
         public int TotalArticulosVendidos()
         {
             return _facturasEnMemoria.SelectMany(f => f.Articulos).Sum(a => a.Cantidad);
         }
-
-
     }
-
 }

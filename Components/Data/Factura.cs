@@ -15,6 +15,9 @@ namespace blazor.Components.Data
         [Required(ErrorMessage = "El nombre del cliente es obligatorio.")]
         public string NombreCliente { get; set; } = string.Empty;
 
+        
+        public bool Archivada { get; set; } = false;
+
         public List<ArticuloFactura> Articulos { get; set; } = new List<ArticuloFactura>();
 
         public decimal Total => Articulos?.Sum(a => a.Precio * a.Cantidad) ?? 0m;
@@ -37,4 +40,3 @@ namespace blazor.Components.Data
         }
     }
 }
-        

@@ -1,0 +1,148 @@
+﻿@page "/facturas-archivadas"
+@rendermode InteractiveServer
+@using blazor.Components.Data
+@using blazor.Components.Servicios
+@using FacturaModel = blazor.Components.Data.Factura
+@inject ServicioFacturas ServicioFacturas
+@inject ServicioControlador ServicioControlador
+@inject NavigationManager Navigation
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+<div class="home-wrapper fade-in">
+    <div class="home-card p-4" style="max-width: 880px; width: 100%;">
+
+        <h2 class="text-center mb-4 text-warning">
+            📂 Facturas Archivadas
+        </h2>
+
+        @if (!tieneAcceso)
+        {
+            <div class="text-center">
+                <h5 class="mb-3">🔐 Ingrese contraseña para acceder</h5>
+
+                <input type="password"
+                       class="form-control mb-3 text-center"
+                       placeholder="Contraseña"
+                       style="max-width: 300px; margin: 0 auto;"
+                       @bind="passwordIngresada" />
+
+                <button class="btn btn-warning px-4"
+                        @onclick="ValidarPassword">
+                    Entrar 🔑
+                </button>
+
+                @if (mensajeError is not null)
+                {
+                    <p class="text-danger mt-3">@mensajeError</p>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-secondary">Listado de Facturas Archivadas</h5>
+
+                
+            </div>
+
+            @if (facturasArchivadas is null)
+            {
+                <p class="text-center">Cargando...</p>
+            }
+            else if (!facturasArchivadas.Any())
+            {
+                <div class="alert alert-warning text-center">
+                    📭 No hay facturas archivadas.
+                </div>
+            }
+            else
+            {
+                <table class="table table-hover table-striped text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>📅 Fecha</th>
+                            <th>👤 Cliente</th>
+                            <th>💰 Total</th>
+                            <th>⚙️ Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in facturasArchivadas)
+                        {
+                            <tr>
+                                <td>@f.Id</td>
+                                <td>@f.FechaFactura.ToShortDateString()</td>
+                                <td>@f.NombreCliente</td>
+                                <td>$@f.Total.ToString("N2")</td>
+
+                                <td style="white-space: nowrap;">
+                                    <button class="btn btn-sm btn-success"
+                                            @onclick="() => Desarchivar(f.Id)">
+                                        ♻️ Desarchivar
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+
+        @if (tieneAcceso)
+        {
+            <div class="text-center mt-3">
+                <button class="btn btn-outline-dark" @onclick="Volver">
+                    ⬅ Volver a facturas
+                </button>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    private bool tieneAcceso = false;
+    private string? passwordIngresada;
+    private string? mensajeError;
+    private List<FacturaModel>? facturasArchivadas;
+
+    private const string CLAVE_ARCHIVADAS = "1234";
+
+    protected override Task OnInitializedAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task ValidarPassword()
+    {
+        if (passwordIngresada == CLAVE_ARCHIVADAS)
+        {
+            tieneAcceso = true;
+            mensajeError = null;
+
+            var lista = await ServicioFacturas.ObtenerArchivadasAsync();
+            facturasArchivadas = lista.ToList();
+        }
+        else
+        {
+            mensajeError = "❌ Contraseña incorrecta.";
+        }
+    }
+
+    private void Volver()
+    {
+        Navigation.NavigateTo("/Vista");
+    }
+
+    private async Task Desarchivar(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"¿Desarchivar la factura #{id}?"))
+        {
+            await ServicioControlador.DesarchivarFacturaAsync(id);
+
+            facturasArchivadas = (await ServicioFacturas.ObtenerArchivadasAsync()).ToList();
+            StateHasChanged();
+        }
+    }
+}

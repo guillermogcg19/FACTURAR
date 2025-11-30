@@ -47,14 +47,27 @@ cx.Open();
 
 var cmd = cx.CreateCommand();
 
+// === Tabla Facturas ahora con columna Archivada ===
 cmd.CommandText = """
 CREATE TABLE IF NOT EXISTS Facturas (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     FechaFactura TEXT NOT NULL,
-    NombreCliente TEXT NOT NULL
+    NombreCliente TEXT NOT NULL,
+    Archivada INTEGER NOT NULL DEFAULT 0
 );
 """;
 cmd.ExecuteNonQuery();
+
+// Intentar agregar columna Archivada si la tabla es vieja
+cmd.CommandText = "ALTER TABLE Facturas ADD COLUMN Archivada INTEGER NOT NULL DEFAULT 0;";
+try
+{
+    cmd.ExecuteNonQuery();
+}
+catch
+{
+    // Si ya existe la columna, ignoramos el error
+}
 
 cmd.CommandText = """
 CREATE TABLE IF NOT EXISTS ArticulosFactura (
@@ -82,6 +95,7 @@ VALUES ('FiltroNombreCliente', '');
 """;
 cmd.ExecuteNonQuery();
 
+// ==== Datos de ejemplo (igual que ya tenías) ====
 var chk = cx.CreateCommand();
 chk.CommandText = "SELECT COUNT(*) FROM Facturas;";
 long total = (long)chk.ExecuteScalar();
@@ -127,7 +141,6 @@ INSERT INTO ArticulosFactura (FacturaId,Descripcion,Precio,Cantidad) VALUES
 (5,'Gucci Sneakers',35000,2);
 """;
     cmd.ExecuteNonQuery();
-
 }
 
 cx.Close();

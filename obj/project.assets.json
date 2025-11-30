@@ -375,11 +375,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Guillermo\\Desktop\\Facturar\\Factura\\Factura.csproj",
+      "projectUniqueName": "C:\\Users\\Guillermo\\Desktop\\123\\Factura.csproj",
       "projectName": "Factura",
-      "projectPath": "C:\\Users\\Guillermo\\Desktop\\Facturar\\Factura\\Factura.csproj",
+      "projectPath": "C:\\Users\\Guillermo\\Desktop\\123\\Factura.csproj",
       "packagesPath": "C:\\Users\\Guillermo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Guillermo\\Desktop\\Facturar\\Factura\\obj\\",
+      "outputPath": "C:\\Users\\Guillermo\\Desktop\\123\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
